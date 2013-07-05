@@ -1,4 +1,5 @@
 require_relative 'item'
+require_relative 'math_helper'
 
 class PromotionalRule
 
@@ -13,10 +14,25 @@ class PromotionalRule
 		unless rule_type != "indiv" || (criteria.has_key?(:applied_to) && criteria.has_key?(:combos))
 			raise ArgumentError, 'Criteria for individual must have keys applied_to and combos'
 		end
+
+		@math_helper = MathHelper.new
 		
 		@rule_type = rule_type
 		@amount = amount
 		@criteria = criteria
+	end
+
+	def process_amount(amount, orig_amount = nil)
+		if amount.to_s.include? "%"
+			# percentage means xx% off
+			@math_helper.round(orig_amount * (1 - amount.gsub("%", "").to_f * 1.0 / 100))
+		elsif amount.to_f < 0
+			# negative amount means XXX off
+			@math_helper.round(orig_amount + amount.to_f)
+		else
+			# positive or zero amount means use this to replace the original
+			@math_helper.round(amount.to_f)
+		end
 	end
 
 	def eligible?(items, total)
@@ -38,7 +54,7 @@ class PromotionalRule
 		end
 	end
 
-	def applied(items, total)
+	def apply(items, total)
 		if @rule_type == "overall"
 			process_amount(@amount, total)
 		else
@@ -55,19 +71,6 @@ class PromotionalRule
 				# return the fix amount
 				process_amount(@amount)
 			end
-		end
-	end
-
-	def process_amount(amount, orig_amount = nil)
-		if amount.to_s.include? "%"
-			# percentage means xx% off
-			orig_amount * (1 - amount.gsub("%", "").to_f * 1.0 / 100)
-		elsif amount.to_f < 0
-			# negative amount means XXX off
-			orig_amount + amount.to_f
-		else
-			# positive or zero amount means use this to replace the original
-			amount.to_f
 		end
 	end
 end

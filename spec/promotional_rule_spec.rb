@@ -40,7 +40,7 @@ describe PromotionalRule do
 
 			it { should be_an_instance_of PromotionalRule }
 			it { should respond_to(:eligible?) }
-			it { should respond_to(:applied) }
+			it { should respond_to(:apply) }
 			it { should respond_to(:process_amount) }
 		end
 
@@ -107,7 +107,7 @@ describe PromotionalRule do
 
 			describe "with rules for individual" do
 				before(:each) do
-					criteria = { :applied_to => "price", :combos => { "001" => 2 } }
+					criteria = { :applied_to => "", :combos => { "001" => 2 } }
 					@promotional_rule = PromotionalRule.new("indiv", 8.5, criteria)
 					@items = Hash.new
 					@items["001"] = Item.new("001", 9.25, 2)
@@ -134,13 +134,112 @@ describe PromotionalRule do
 						@promotional_rule.eligible?(@items, nil).should be_true
 					end
 				end
-
-				describe "when it's applied_to"
 			end
 		end
 
 		describe "#applied" do
+			describe "with rules for overall" do
+				before(:each) do
+					criteria = 60
+					@promotional_rule = PromotionalRule.new("overall", "10%", criteria)
+				end
 
+				describe "when rule is eligible" do
+					before { @total = 60 }
+
+					describe "and rule amount is percentage" do
+						it "should calculate the final amount correctly" do
+							@promotional_rule.apply(nil, @total).should equal(54.0)
+						end
+					end
+
+					describe "and rule amount is negative numeric" do
+						before { @promotional_rule.amount = -1.1 }
+						it "should calculate the final amount correctly" do
+							@promotional_rule.apply(nil, @total).should equal(58.9)
+						end
+					end
+
+					describe "and rule amount is positive numeric" do
+						before { @promotional_rule.amount = 50 }
+						it "should replace the final amount by the rule amount" do
+							@promotional_rule.apply(nil, @total).should equal(50.0)
+						end
+					end
+				end
+			end
+
+			describe "with rules for individual" do
+				describe "when the rule is eligible" do
+					describe "and rule is applied_to price" do
+						before do
+							criteria = { :applied_to => "price", :combos => { "001" => 2 } }
+							@promotional_rule = PromotionalRule.new("indiv", 8.5, criteria)
+							@items = Hash.new
+							@items["001"] = Item.new("001", 9.25, 2)
+						end
+						describe "and the rule amount is positive numeric" do
+							before do 
+								@promotional_rule.apply(@items, nil)
+								@expect_items = Hash.new
+								@expect_items["001"] = Item.new("001", 8.5, 2)
+							end
+							it "should replace item price" do
+								@expect_items.should == @items
+							end
+						end
+
+						describe "and the rule amount is negative numeric" do
+							before do 
+								@promotional_rule.amount = -2
+								@promotional_rule.apply(@items, nil)
+								@expect_items = Hash.new
+								@expect_items["001"] = Item.new("001", 7.25, 2)
+							end
+							it "item price should minus the rule amount and get updated" do
+								@expect_items.should == @items
+							end
+						end
+
+						describe "and the rule amount is percentage" do
+							before do 
+								@promotional_rule.amount = "10%"
+								@promotional_rule.apply(@items, nil)
+								@expect_items = Hash.new
+								# there is a round error here
+								@expect_items["001"] = Item.new("001", 8.33, 2)
+							end
+							it "item price should minus the rule amount and get updated" do
+								@expect_items.should == @items
+							end
+						end
+					end
+
+					describe "and rule is applied_to amount" do
+						before do
+							criteria = { :applied_to => "amount", 
+										 :combos => { "001" => 1, "002" => 1 } }
+							@promotional_rule = PromotionalRule.new("indiv", 16, criteria)
+							@items = Hash.new
+							@items["001"] = Item.new("001", 9.25, 2)
+							@items["002"] = Item.new("002", 7.25, 1)
+
+							@expect_items = Hash.new
+							@expect_items["001"] = Item.new("001", 9.25, 1)
+							@expect_items["002"] = Item.new("002", 7.25, 0)
+						end
+
+						describe "after applied" do
+							before { @result = @promotional_rule.apply(@items, nil) }
+							it "should reduce the items quantity and return the rule amount" do
+								@expect_items.should == @items
+								@result.should == 16
+							end
+						end
+					end
+					
+				end
+			end
 		end
 	end
 

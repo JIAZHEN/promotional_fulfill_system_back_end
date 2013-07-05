@@ -28,6 +28,13 @@ describe Item do
 				@item.product_code.should eq("00a")
 			end
 
+			describe "anther item with the same argument" do
+				before { @itemdup = Item.new "00A", 10.11, 10 }
+				it "should be the equal" do
+					@itemdup.should == @item
+				end
+			end
+
 		end
 
 		describe "with invalid parameters" do

@@ -1,13 +1,18 @@
+require_relative 'item'
+
 class Checkout
 
-	def initialize(promotional_rules)
+	attr_reader 	:items
+	attr_accessor 	:promotional_rules
+
+	def initialize(promotional_rules = Hash.new)
 		@promotional_rules = promotional_rules
 		@items = Hash.new
 	end
 
 	def scan(item)
 		if @items.has_key?(item.product_code)
-			@item[item.product_code].quantity += item.quantity
+			@items[item.product_code].quantity += item.quantity
 		else
 			@items[item.product_code] = item
 		end
@@ -18,11 +23,12 @@ class Checkout
 		# check the rules for individuals first
 		@promotional_rules.each do |promotional_rule|
 			total_revenue = orig_amt(replace_amts)
-			if promotional_rule.rule_type != "overall"
-				unless promotional_rule.eligible?(@items, total_revenue) do
-					replace_amt = promotional_rule.appied(@items, total_revenue)
-					replace_amts.push(replace_amt)
-				end
+			if promotional_rule.rule_type != "overall" &&
+			   promotional_rule.eligible?(@items, total_revenue)
+
+			   replace_amt = promotional_rule.appied(@items, total_revenue)
+			   replace_amts.push(replace_amt)
+
 			end
 		end
 		# now we check the rules for overall
@@ -30,12 +36,12 @@ class Checkout
 		overall_rule_applied = false
 		total_revenue = orig_amt(replace_amts)
 		@promotional_rules.each do |promotional_rule|
-			unless overall_rule_applied do
-				if promotional_rule.rule_type == "overall" && 
-				   promotional_rule.eligible?(nil, total_revenue)
-				   	total_revenue = promotional_rule.applied(nil, total_revenue)
-				   	overall_rule_applied = true
-				end
+			if !overall_rule_applied &&
+			    promotional_rule.rule_type == "overall" && 
+				promotional_rule.eligible?(nil, total_revenue)
+
+				total_revenue = promotional_rule.applied(nil, total_revenue)
+				overall_rule_applied = true
 			end
 		end
 		return total_revenue
@@ -44,13 +50,15 @@ class Checkout
 	private
 		def orig_amt(replace_amts = nil)
 			amount = 0
-			items.each do |item|
+			items.each do |code, item|
 				amount += item.total
 			end
+
 			unless replace_amts.nil?
-				replace_amts do |replace_amt|
+				replace_amts.each do |replace_amt|
 					amount += replace_amt
 				end
 			end
+			return amount
 		end
 end

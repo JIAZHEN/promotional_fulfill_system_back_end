@@ -11,7 +11,7 @@ class Item
 		@math_helper = MathHelper.new
 		
 		#convert all product_code to downcase
-		@product_code = product_code.downcase!
+		@product_code = product_code.downcase
 		@price = price
 		@quantity = quantity
 		

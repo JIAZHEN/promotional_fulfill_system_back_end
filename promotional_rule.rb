@@ -46,7 +46,7 @@ class PromotionalRule
 			# must for individual
 			condition_meet = true
 			@criteria[:combos].each do |key, value|
-				if !items.has_key?key || (items[key].quantity.to_i) < value.to_i
+				unless items.has_key?key && (items[key].quantity.to_i) >= value.to_i
 					condition_meet = false
 				end
 			end
@@ -63,6 +63,7 @@ class PromotionalRule
 				@criteria[:combos].each do |key, value|
 					items[key].price = process_amount(amount, items[key].price)
 				end
+				return nil
 			else
 				# must be amount
 				@criteria[:combos].each do |key, value|

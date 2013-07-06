@@ -38,14 +38,33 @@ describe Checkout do
 
 	describe "#total" do
 
-		describe "when no promotional rules" do
+		# describe "when no promotional rule" do
+		# 	before do
+		# 		@co.scan(Item.new("001", 9.25, 2))
+		# 		@co.scan(Item.new("002", 45.00, 1))
+		# 		@co.scan(Item.new("003", 19.95, 1))
+		# 	end
+		# 	it "should return the correct total directly" do
+		# 		@co.total.should == 83.45
+		# 	end
+		# end
+
+		describe "when there are rules" do
 			before do
-				@co.scan(Item.new("001", 9.25, 1))
-				@co.scan(Item.new("002", 45.00, 1))
-				@co.scan(Item.new("003", 19.95, 1))
+				@co.promotional_rules = promotional_rules = [
+					PromotionalRule.new("overall", "10%", 60),
+					PromotionalRule.new("indiv", 8.5, { :applied_to => "price", :combos => { "001" => 2 } } )
+				]
 			end
-			it "should return the correct total directly" do
-				@co.total.should == 74.2
+			describe "only total meet the rule" do
+				before do
+					@co.scan(Item.new("001", 9.25, 1))
+					@co.scan(Item.new("002", 45.00, 1))
+					@co.scan(Item.new("003", 19.95, 1))
+				end
+				it "should apply the discount and calculate the correct total" do
+					@co.total.should == 66.78
+				end
 			end
 		end
 

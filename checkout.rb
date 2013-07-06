@@ -25,12 +25,14 @@ class Checkout
 			total_revenue = orig_amt(replace_amts)
 			if promotional_rule.rule_type != "overall" &&
 			   promotional_rule.eligible?(@items, total_revenue)
-
-			   replace_amt = promotional_rule.appied(@items, total_revenue)
-			   replace_amts.push(replace_amt)
-
+			   
+			   replace_amt = promotional_rule.apply(@items, total_revenue)
+			   unless replace_amt.nil?
+			   		replace_amts.push(replace_amt)
+			   end
 			end
 		end
+
 		# now we check the rules for overall
 		# only one rule can be applied
 		overall_rule_applied = false
@@ -40,7 +42,7 @@ class Checkout
 			    promotional_rule.rule_type == "overall" && 
 				promotional_rule.eligible?(nil, total_revenue)
 
-				total_revenue = promotional_rule.applied(nil, total_revenue)
+				total_revenue = promotional_rule.apply(nil, total_revenue)
 				overall_rule_applied = true
 			end
 		end

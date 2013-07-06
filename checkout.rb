@@ -25,7 +25,7 @@ class Checkout
 			total_revenue = orig_amt(replace_amts)
 			if promotional_rule.rule_type != "overall" &&
 			   promotional_rule.eligible?(@items, total_revenue)
-			   
+
 			   replace_amt = promotional_rule.apply(@items, total_revenue)
 			   unless replace_amt.nil?
 			   		replace_amts.push(replace_amt)

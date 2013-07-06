@@ -46,7 +46,7 @@ class PromotionalRule
 			# must for individual
 			condition_meet = true
 			@criteria[:combos].each do |key, value|
-				unless items.has_key?key && (items[key].quantity.to_i) >= value.to_i
+				unless (items.has_key?key) && ((items[key].quantity.to_i) >= value.to_i)
 					condition_meet = false
 				end
 			end

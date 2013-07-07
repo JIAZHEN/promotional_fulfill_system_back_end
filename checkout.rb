@@ -1,15 +1,21 @@
 require_relative 'item'
 
+# This is the class to fulfil the back end of checkout system
+
 class Checkout
 
 	attr_reader 	:items
 	attr_accessor 	:promotional_rules
 
+	# initialise the checkout system
+	# if the promotional rules are not provided, we initilise it as empty Hash
 	def initialize(promotional_rules = Hash.new)
 		@promotional_rules = promotional_rules
 		@items = Hash.new
 	end
 
+	# Scan item from the basket one by one
+	# Store the items into a hash, which key is product code, value is the Item object
 	def scan(item)
 		if @items.has_key?(item.product_code)
 			@items[item.product_code].quantity += item.quantity
@@ -18,6 +24,8 @@ class Checkout
 		end
 	end
 
+	# A method to check if the items in basket fulfil any of promotional rules
+	# If it does, apply the discount to the order then return the final price
 	def total
 		replace_amts = Array.new
 		# check the rules for individuals first
@@ -49,6 +57,7 @@ class Checkout
 	end
 
 	private
+		# A method to calculate the total revenue of items
 		def orig_amt(replace_amts = nil)
 			amount = 0
 			items.each do |code, item|

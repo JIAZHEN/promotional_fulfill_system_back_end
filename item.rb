@@ -1,8 +1,13 @@
 require_relative 'math_helper'
+
+# This is a class to store item information
 class Item
 
-	attr_accessor :product_code, :price, :quantity
+	attr_reader		:product_code
+	attr_accessor	:price, :quantity
 
+	# All arguments are required, 
+	# product code must be string, price and quantity must be numeric
 	def initialize(product_code, price, quantity)
 		raise ArgumentError, 'ProductCode is not String' unless product_code.is_a? String
 		raise ArgumentError, 'Price is not Numeric' unless price.is_a? Numeric
@@ -15,8 +20,10 @@ class Item
 		
 	end
 
-	def total
-		MathHelper.round(@price * @quantity)
+	# This method will calculate the renvenue by using price multiply quantity
+	# by default it rounds the result with 2 digits after decimal point
+	def total(precision = 2)
+		MathHelper.round(@price * @quantity, precision)
 	end
 
 	def ==(another_sock)

@@ -92,6 +92,51 @@ describe Checkout do
 			end
 		end
 
+		describe "when there are more rules for overall" do
+			before do
+				@co.promotional_rules = promotional_rules = [
+					PromotionalRule.new("overall", "10%", 60),
+					PromotionalRule.new("overall", "15%", 120),
+					PromotionalRule.new("overall", "20%", 180)
+				]
+			end
+
+			describe "more than two rules are eligible" do
+				before do
+					@co.scan(Item.new("001", 9.25, 1))
+					@co.scan(Item.new("002", 45.00, 2))
+					@co.scan(Item.new("003", 19.95, 3))
+				end
+				it "should apply the lowest discount" do
+					@co.total.should == 135.23
+				end
+			end
+		end
+
+		describe "when there is rule for product combination" do
+			before do
+				@co.promotional_rules = promotional_rules = [
+					PromotionalRule.new("indiv", 65, { :applied_to => "amount", 
+													   :combos => { "001" => 1, 
+																	"002" => 1, 
+																	"003" => 1 } 
+													  } 
+										)
+				]
+			end
+
+			describe "and it is eligible" do
+				before do
+					@co.scan(Item.new("001", 9.25, 1))
+					@co.scan(Item.new("002", 45.00, 2))
+					@co.scan(Item.new("003", 19.95, 1))
+				end
+				it "should apply the rule amount for the combination" do
+					@co.total.should == 110
+				end
+			end
+		end
+
 	end
 
 end

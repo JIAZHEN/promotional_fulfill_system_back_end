@@ -34,19 +34,18 @@ class Checkout
 		end
 
 		# now we check the rules for overall
-		# only one rule can be applied
-		overall_rule_applied = false
+		# only the lowest rule can be applied
 		total_revenue = orig_amt(replace_amts)
+		lowest_amt = total_revenue
 		@promotional_rules.each do |promotional_rule|
-			if !overall_rule_applied &&
-			    promotional_rule.rule_type == "overall" && 
+			if 	promotional_rule.rule_type == "overall" && 
 				promotional_rule.eligible?(nil, total_revenue)
 
-				total_revenue = promotional_rule.apply(nil, total_revenue)
-				overall_rule_applied = true
+				lowest_amt = [ promotional_rule.apply(nil, total_revenue), 
+							   lowest_amt ].min
 			end
 		end
-		return total_revenue
+		return lowest_amt
 	end
 
 	private

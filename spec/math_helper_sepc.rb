@@ -11,18 +11,17 @@ describe MathHelper do
 	end
 
 	describe "#round" do
-		before { @math_helper = MathHelper.new }
 
 		it "should solve the rounding error" do
-			@math_helper.round(@rounding_error).should == 12995
+			MathHelper.round(@rounding_error).should == 12995
 		end
 
 		it "should round it in two decimal by default" do
-			@math_helper.round(75.556).should == 75.56
+			MathHelper.round(75.556).should == 75.56
 		end
 
 		it "should round with specific number of decimals" do
-			@math_helper.round(75.1234567, 3).should == 75.123
+			MathHelper.round(75.1234567, 3).should == 75.123
 		end
 	end
 

@@ -14,8 +14,6 @@ class PromotionalRule
 		unless rule_type != "indiv" || (criteria.has_key?(:applied_to) && criteria.has_key?(:combos))
 			raise ArgumentError, 'Criteria for individual must have keys applied_to and combos'
 		end
-
-		@math_helper = MathHelper.new
 		
 		@rule_type = rule_type
 		@amount = amount
@@ -25,13 +23,13 @@ class PromotionalRule
 	def process_amount(amount, orig_amount = nil)
 		if amount.to_s.include? "%"
 			# percentage means xx% off
-			@math_helper.round(orig_amount * (1 - amount.gsub("%", "").to_f * 1.0 / 100))
+			MathHelper.round(orig_amount * (1 - amount.gsub("%", "").to_f * 1.0 / 100))
 		elsif amount.to_f < 0
 			# negative amount means XXX off
-			@math_helper.round(orig_amount + amount.to_f)
+			MathHelper.round(orig_amount + amount.to_f)
 		else
 			# positive or zero amount means use this to replace the original
-			@math_helper.round(amount.to_f)
+			MathHelper.round(amount.to_f)
 		end
 	end
 
@@ -64,13 +62,15 @@ class PromotionalRule
 					items[key].price = process_amount(amount, items[key].price)
 				end
 				return nil
-			else
+			elsif
 				# must be amount
 				@criteria[:combos].each do |key, value|
 					items[key].quantity -= value
 				end
 				# return the fix amount
 				process_amount(@amount)
+			else
+				raise ArgumentError, 'Only can apply to price or amount'
 			end
 		end
 	end

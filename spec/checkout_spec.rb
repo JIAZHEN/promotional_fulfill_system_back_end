@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe "Checkout system" do
 
-	let(:item_info) do
+	let(:items_info) do
 		{ "001" => { price: 9.25, name: "Lavender heart" },
 			"002" => { price: 45.00, name: "Personalised cufflinks" },
 			"003" => { price: 19.95, name: "Kids T-shirt" } }
@@ -35,7 +35,7 @@ describe "Checkout system" do
 
 	describe "checkout" do
 
-		let(:rule_over_60) { PromotionalRule.new(10, total: true, percent: true, amount: 60) }
+		let(:rule_over_60) { PromotionalRule.new(items_info, 10, total: true, percent: true, amount: 60) }
 
 		describe "without promotional rule" do
 			before(:each) do
@@ -44,9 +44,9 @@ describe "Checkout system" do
 				@co.scan("002")
 				@co.scan("001")
 			end
-			
-			it "should return the correct total" do
 
+			it "should return the correct total" do
+				@co.total.should == 63.5
 			end
 		end
 

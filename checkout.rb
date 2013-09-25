@@ -20,10 +20,10 @@ class Checkout
 	def total
 		revenue = 0
 		# check the rules for individuals first
-		@rules.each { |rule| revenue += rule.apply @items }
+		@rules.each { |rule| revenue += rule.apply @items if rule.eligible? @items }
 
 		# now we check the rules for overall
-		@rules.each { |rule| revenue = rule.apply revenue.to_f } 
+		@rules.each { |rule| revenue = rule.apply revenue.to_f if rule.eligible? revenue.to_f } 
 		return revenue
 	end
 end

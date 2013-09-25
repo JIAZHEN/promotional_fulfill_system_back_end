@@ -24,6 +24,6 @@ class Checkout
 
 		# now we check the rules for overall
 		@rules.each { |rule| revenue = rule.apply revenue.to_f } 
-		return total_revenue
+		return revenue
 	end
 end

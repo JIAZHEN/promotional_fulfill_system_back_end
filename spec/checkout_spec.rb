@@ -34,9 +34,6 @@ describe "Checkout system" do
 	end
 
 	describe "checkout" do
-
-		let(:rule_over_60) { PromotionalRule.new(items_info, 10, total: true, percent: true, amount: 60) }
-
 		describe "without promotional rule" do
 			before(:each) do
 				@co = Checkout.new
@@ -46,12 +43,23 @@ describe "Checkout system" do
 			end
 
 			it "should return the correct total" do
-				@co.total.should == 63.5
+				@co.total(items_info).should == 63.5
 			end
 		end
 
-		describe "when spend over 60" do
-			it "should get 10% off" do
+		describe "with promotional rules" do
+			let(:rule_over_60) { PromotionalRule.new(10, total: true, percent: true, amount: 60) }
+
+			describe "when spend over 60" do
+				before(:each) do
+					@co = Checkout.new([rule_over_60])
+					@co.scan("001")
+					@co.scan("002")
+					@co.scan("003")
+				end
+				it "should get 10% off" do
+					@co.total(items_info).should == 66.78
+				end
 			end
 		end
 

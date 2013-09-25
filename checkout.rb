@@ -17,13 +17,13 @@ class Checkout
 		end
 	end
 
-	def total
+	def total(items_info)
 		revenue = 0
 		# check the rules for individuals first
-		@rules.each { |rule| revenue += rule.apply @items if rule.eligible? @items }
-
+		@rules.each { |rule| revenue += rule.apply @items, items_info if rule.eligible? @items }
+		@items.each { |item, qty| revenue += items_info[item][:price] * qty }
 		# now we check the rules for overall
-		@rules.each { |rule| revenue = rule.apply revenue.to_f if rule.eligible? revenue.to_f } 
+		@rules.each { |rule| revenue = rule.apply revenue.to_f, items_info if rule.eligible? revenue.to_f } 
 		return revenue
 	end
 end

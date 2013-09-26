@@ -48,28 +48,47 @@ describe "Checkout system" do
 		end
 
 		describe "with promotional rules" do
-			let(:rule_over_60) { PromotionalRule.new(10, total: true, percent: true, amount: 60) }
+			let(:over_60) { PromotionalRule.new(10, total: true, percent: true, amount: 60) }
+			let(:more_than_two) { PromotionalRule.new(8.5, each: true, items: { "001" => 2 }) }
 
 			describe "when spend over 60" do
 				before(:each) do
-					@co = Checkout.new([rule_over_60])
+					@co = Checkout.new([over_60])
 					@co.scan("001")
 					@co.scan("002")
 					@co.scan("003")
 				end
+
 				it "should get 10% off" do
 					@co.total(items_info).should == 66.78
 				end
 			end
-		end
 
-		describe "when buy 2 or more lavender hearts" do
-			it "should drop the price to 8.5 then return the correct total" do
+			describe "when buy 2 or more lavender hearts" do
+				before(:each) do
+					@co = Checkout.new([more_than_two])
+					@co.scan("001")
+					@co.scan("003")
+					@co.scan("001")
+				end
+
+				it "should drop the price to 8.5 then return the correct total" do
+					@co.total(items_info).should == 36.95
+				end
 			end
-		end
 
-		describe "when buy 2 lavender hearts, 1 Personalised cufflinks and 1 Kids T-shirt" do
-			it "lavender hearts price should drop to 8.5 and get 10% off" do
+			describe "when buy 2 lavender hearts, 1 Personalised cufflinks and 1 Kids T-shirt" do
+				before(:each) do
+					@co = Checkout.new([more_than_two, over_60])
+					@co.scan("001")
+					@co.scan("002")
+					@co.scan("001")
+					@co.scan("003")
+				end
+
+				it "lavender hearts price should drop to 8.5 and get 10% off" do
+					@co.total(items_info).should == 73.76
+				end
 			end
 		end
 	end

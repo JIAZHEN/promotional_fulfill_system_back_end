@@ -22,7 +22,7 @@ class PromotionalRule
 	end
 
 	# This method is to apply the discount to the total revenue or to individuals
-	def apply(given_data, items_info)
+	def apply(given_data)
 		if @requires[:total]
 			if @requires[:percent]
 				return given_data * (1 - @discount.to_f / 100)
@@ -32,17 +32,10 @@ class PromotionalRule
 		else
 			revenue = 0
 			@requires[:items].each do |item, qty|
-				price = items_info[item][:price]
-				if @requires[:percent]
-					return price * (1 - @discount.to_f / 100)
-				else
-					return price - @discount
-				end
-
-				revenue += items_info[item][:price] * qty
+				revenue += @discount * qty
 				given_data[item] = given_data[item] - qty
 			end
-			return revenue
+			return revenue, given_data
 		end
 	end
 end

@@ -1,5 +1,3 @@
-require_relative 'math_helper'
-
 class PromotionalRule
 
 	attr_reader :requires
@@ -12,7 +10,7 @@ class PromotionalRule
 	def eligible?(given_data)
 		if @requires[:total] and given_data.is_a? Float
 			return given_data >= @requires[:amount]
-		elsif @requires[:each] and given_data.is_a? Array
+		elsif @requires[:each] and given_data.is_a? Hash
 			@requires[:items].each do |item, qty|
 				return false if given_data[item] < qty
 			end

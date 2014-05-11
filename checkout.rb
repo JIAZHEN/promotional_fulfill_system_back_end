@@ -5,7 +5,7 @@ class Checkout
 
   attr_reader   :items
 
-  def initialize(rules = Hash.new)
+  def initialize(rules = Array.new)
     @rules = rules
     @items = Hash.new
   end

@@ -1,13 +1,6 @@
 require 'spec_helper'
 
 describe "Checkout system" do
-
-  let(:items_info) do
-    { "001" => { price: 9.25, name: "Lavender heart" },
-      "002" => { price: 45.00, name: "Personalised cufflinks" },
-      "003" => { price: 19.95, name: "Kids T-shirt" } }
-  end
-
   describe "scan" do
     before(:each) { @co = Checkout.new }
 
@@ -43,7 +36,7 @@ describe "Checkout system" do
       end
 
       it "should return the correct total" do
-        @co.total(items_info).should == 63.5
+        @co.total.should == 63.5
       end
     end
 
@@ -60,7 +53,7 @@ describe "Checkout system" do
         end
 
         it "should get 10% off" do
-          @co.total(items_info).should == 66.78
+          @co.total.should == 66.78
         end
       end
 
@@ -73,7 +66,7 @@ describe "Checkout system" do
         end
 
         it "should drop the price to 8.5 then return the correct total" do
-          @co.total(items_info).should == 36.95
+          @co.total.should == 36.95
         end
       end
 
@@ -87,7 +80,7 @@ describe "Checkout system" do
         end
 
         it "lavender hearts price should drop to 8.5 and get 10% off" do
-          @co.total(items_info).should == 73.76
+          @co.total.should == 73.76
         end
       end
     end

@@ -11,16 +11,11 @@ class Checkout
   end
 
   def scan(item)
-    if @items[item]
-      @items[item] += 1
-    else
-      @items[item] = 1
-    end
+    @items[item] ? (@items[item] += 1) : @items[item] = 1
   end
 
-  def total(items_info)
+  def total
     revenue = 0
-    # check the rules for individuals first
     @rules.each do |rule|
       if rule.eligible? @items
         per_total, items = rule.apply @items
@@ -29,10 +24,18 @@ class Checkout
       end
     end
 
-    @items.each { |item, qty| revenue += items_info[item][:price] * qty }
+    @items.each { |item, qty| revenue += items_price[item][:price] * qty }
     # now we check the rules for overall
     @rules.each { |rule| revenue = rule.apply revenue.to_f if rule.eligible? revenue.to_f } 
     return round(revenue)
+  end
+
+  def items_price
+    { 
+      "001" => { price: 9.25,  name: "Lavender heart" },
+      "002" => { price: 45.00, name: "Personalised cufflinks" },
+      "003" => { price: 19.95, name: "Kids T-shirt" } 
+    }
   end
 
   private

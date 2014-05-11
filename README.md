@@ -3,37 +3,26 @@ promotional_fulfill_system_back_end
 
 This is the back end of promotional fulfil system. It will scan items in any order and allow web manager to custom promotional rules
 
-Sample of some of the products available on our site:
+#### pricing scheme examples
+- three for a dollar (so what’s the price if I buy 4, or 5?)
+- $1.99/pound (so what does 4 ounces cost?)
+- buy two, get one free (so does the third item have a price?)
 
-Product code  | Name                   | Price
-----------------------------------------------------------
-001           | Lavender heart         | £9.25
-002           | Personalised cufflinks | £45.00
-003           | Kids T-shirt           | £19.95
+#### issues to be considered
+- does fractional money exist?
+- when (if ever) does rounding take place?
+- how do you keep an audit trail of pricing decisions (and do you need to)?
+- are costs and prices the same class of thing?
+- if a shelf of 100 cans is priced using “buy two, get one free”, how do you value the stock?
 
-Marketing team want to offer promotions as an incentive for our customers to purchase these items.
+#### design
+In order to flexible enough to deal with pricing schemes in supermarket, the interface to checkout should be like
 
-If you spend over £60, then you get 10% of your purchase
-If you buy 2 or more lavender hearts then the price drops to £8.50.
+    co = Checkout.new(promotional_rules)
+    co.scan(item)
+    co.scan(item)
+    price = co.total
 
-Our check-out can scan items in any order, and because our promotions will change, it needs to be flexible regarding our promotional rules.
+So, checkout system have the ability to scan, store item and quantity in a hash. The scanned item should be just the product-code, the latest price should be from DB (in this case to keep it simple will be a constant hash).
 
-The interface to our checkout looks like this:
-
-  co = Checkout.new(promotional_rules)
-  co.scan(item)
-  co.scan(item)
-  price = co.total
-
-Implement a checkout system that fulfills these requirements.
-
-Test data
----------
-Basket: 001,002,003
-Total price expected: £66.78
-
-Basket: 001,003,001
-Total price expected: £36.95
-
-Basket: 001,002,001,003
-Total price expected: £73.76
+Supermarket manager can add as much promotional rules. Promotional rules will be sorted by descending discounts so customers can have the best offers as they can.

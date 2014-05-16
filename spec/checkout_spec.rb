@@ -41,8 +41,8 @@ describe "Checkout system" do
     end
 
     describe "with promotional rules" do
-      let(:over_60) { PromotionalRule.new(10, total: true, percent: true, amount: 60) }
-      let(:more_than_two) { PromotionalRule.new(8.5, each: true, items: { "001" => 2 }) }
+      let(:over_60) { Rule.new(10, total: true, percent: true, amount: 60) }
+      let(:more_than_two) { Rule.new(8.5, each: true, items: { "001" => 2 }) }
 
       describe "when spend over 60" do
         before(:each) do

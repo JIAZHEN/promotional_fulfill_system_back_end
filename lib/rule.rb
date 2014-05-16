@@ -1,4 +1,4 @@
-class PromotionalRule
+class Rule
 
   attr_reader :requires
 

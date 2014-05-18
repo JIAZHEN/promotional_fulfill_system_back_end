@@ -9,6 +9,9 @@ class Rule
     case @rule_type
     when :total
       items_or_balance.send(@cond[:comparison], @cond[:threshold])
+    when :price_drop
+      item = @cond[:item]
+      items_or_balance[item][:qty] >= @cond[:qty]
     else
       raise ArgumentError.new('Undefined rule type.') 
     end
@@ -22,6 +25,9 @@ class Rule
       else
         items_or_balance - @cond[:discount].to_f
       end
+    when :price_drop
+      item = @cond[:item]
+      items_or_balance[item][:price] = @cond[:drop_to]
     else
       raise ArgumentError.new('Undefined rule type.') 
     end

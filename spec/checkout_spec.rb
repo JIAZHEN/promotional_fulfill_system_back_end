@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "Checkout system" do
-  describe "scan" do
+  describe "#scan" do
     before(:each) { @co = Checkout.new }
 
     describe "single item" do
@@ -26,7 +26,7 @@ describe "Checkout system" do
     end
   end
 
-  describe "checkout" do
+  describe "#checkout" do
     describe "without promotional rule" do
       before(:each) do
         @co = Checkout.new

@@ -30,8 +30,11 @@ In order to flexible enough to deal with pricing schemes in supermarket, the int
 So, checkout system have the ability to scan, store item and quantity in a hash. The scanned item should be just the product-code, the latest price should be from DB (in this case to keep it simple will be a constant hash).
 
 Supermarket manager can add as much promotional rules. Promotional rules will be sorted by descending discounts so customers can have the best offers as they can. As an user, I would hope I can create promotional rule as
+    
+    Rule.new(:total, comparison: :>=, threshold: 60, discount: "10%") # "10%".to_f < 0
+    Rule.new(:total, comparison: :>=, threshold: 100, discount: "15%") # "10%".to_f < 0
+    Rule.new(:buy_n_for_m, n: 2, m: 1, item: "1")
 
-    Rule.new(total: ">= 60", discount: "10%") # "10%".to_f < 0
     Rule.new("001" => ">= 2", price: 8.5)
     Rule.new(["001", "002", "003"], free: :min)
     Rule.new("any 3" => ["001", "003", "004", "008", "009"], just: 10)

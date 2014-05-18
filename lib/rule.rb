@@ -5,30 +5,25 @@ class Rule
     @cond = cond
   end
 
-  def eligible_for?(given_data)
+  def eligible_for?(items_or_balance)
     case @rule_type
     when :total
-      given_data.send(@cond[:comparison], @cond[:threshold])
+      items_or_balance.send(@cond[:comparison], @cond[:threshold])
     else
       raise ArgumentError.new('Undefined rule type.') 
     end
   end
 
-  # This method is to apply the discount to the total revenue or to individuals
-  def apply(given_data)
-    if @cond[:total]
-      if @cond[:percent]
-        return given_data * (1 - @discount.to_f / 100)
+  def apply_to(items_or_balance)
+    case @rule_type
+    when :total
+      if @cond[:discount].include?('%')
+        items_or_balance * (1 - @cond[:discount].to_f / 100)
       else
-        return given_data - @discount
+        items_or_balance - @cond[:discount].to_f
       end
     else
-      revenue = 0
-      @cond[:items].each do |item, qty|
-        revenue += @discount * qty
-        given_data[item] = given_data[item] - qty
-      end
-      return revenue, given_data
+      raise ArgumentError.new('Undefined rule type.') 
     end
   end
 end

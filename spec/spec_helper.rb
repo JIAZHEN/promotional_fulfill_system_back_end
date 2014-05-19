@@ -1,3 +1,2 @@
-require 'debugger';
-require_relative '../promotional_rule'
-require_relative '../checkout'
+require_relative '../lib/rule'
+require_relative '../lib/checkout'

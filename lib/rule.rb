@@ -32,4 +32,8 @@ class Rule
       raise ArgumentError.new('Undefined rule type.') 
     end
   end
+
+  def is_for_total?
+    @rule_type == :total
+  end
 end

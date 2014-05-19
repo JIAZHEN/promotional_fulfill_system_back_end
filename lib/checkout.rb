@@ -5,28 +5,24 @@ class Checkout
 
   attr_reader   :items
 
-  def initialize(rules = Array.new)
-    @rules = rules
+  def initialize(*rules)
     @items = Hash.new
+    split_rules(rules)
   end
 
   def scan(item)
-    @items[item] ? (@items[item] += 1) : @items[item] = 1
+    if @items[item]
+      @items[item][:qty] += 1
+    else
+      @items[item] = { qty: 1, price: items_price[item][:price] }
+    end
   end
 
   def total
     revenue = 0
-    @rules.each do |rule|
-      if rule.eligible? @items
-        per_total, items = rule.apply @items
-        revenue += per_total
-        @items = items
-      end
-    end
-
-    @items.each { |item, qty| revenue += items_price[item][:price] * qty }
-    # now we check the rules for overall
-    @rules.each { |rule| revenue = rule.apply revenue.to_f if rule.eligible? revenue.to_f } 
+    @other_rules.each { |rule| rule.apply_to(@items) if rule.eligible_for?(@items) }
+    @items.values.each { |item_info| revenue += item_info[:price] * item_info[:qty] }
+    @total_rules.each { |rule| revenue = rule.apply_to(revenue.to_f) if rule.eligible_for?(revenue.to_f) } 
     return round(revenue)
   end
 
@@ -42,5 +38,10 @@ class Checkout
   def round(value, precision = 2)
     bd = BigDecimal(value.to_s)
     bd.round(precision, BigDecimal::ROUND_HALF_UP).to_f
+  end
+
+  def split_rules(rules)
+    @total_rules, @other_rules = Set.new, Set.new
+    rules.each { |rule| rule.is_for_total? ? (@total_rules << rule) : (@other_rules << rule) }
   end
 end

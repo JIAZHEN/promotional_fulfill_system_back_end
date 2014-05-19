@@ -7,8 +7,9 @@ describe "Checkout system" do
     describe "single item" do
       before(:each) { @co.scan("001") }
 
-      it "should increase the quantity of the correct items" do
-        @co.items["001"].should == 1
+      it "should increase the quantity of the correct items and include item price" do
+        expected_items = { "001" => { qty: 1, price: 9.25 } }
+        @co.items.should eql(expected_items)
       end
     end
 
@@ -20,8 +21,11 @@ describe "Checkout system" do
       end
 
       it "should increase the quantity of the correct items" do
-        @co.items["001"].should == 2
-        @co.items["002"].should == 1
+        expected_items = { 
+          "001" => { qty: 2, price: 9.25 },
+          "002" => { qty: 1, price: 45.0 }
+        }
+        @co.items.should eql(expected_items)
       end
     end
   end
@@ -41,12 +45,12 @@ describe "Checkout system" do
     end
 
     describe "with promotional rules" do
-      let(:over_60) { Rule.new(10, total: true, percent: true, amount: 60) }
-      let(:more_than_two) { Rule.new(8.5, each: true, items: { "001" => 2 }) }
+      let(:over_60) { Rule.new(:total, comparison: :>=, threshold: 60, discount: "10%") }
+      let(:price_drop) { Rule.new(:price_drop, item: "001", qty: 2, drop_to: 8.5) }
 
       describe "when spend over 60" do
         before(:each) do
-          @co = Checkout.new([over_60])
+          @co = Checkout.new(over_60)
           @co.scan("001")
           @co.scan("002")
           @co.scan("003")
@@ -59,7 +63,7 @@ describe "Checkout system" do
 
       describe "when buy 2 or more lavender hearts" do
         before(:each) do
-          @co = Checkout.new([more_than_two])
+          @co = Checkout.new(price_drop)
           @co.scan("001")
           @co.scan("003")
           @co.scan("001")
@@ -72,7 +76,7 @@ describe "Checkout system" do
 
       describe "when buy 2 lavender hearts, 1 Personalised cufflinks and 1 Kids T-shirt" do
         before(:each) do
-          @co = Checkout.new([more_than_two, over_60])
+          @co = Checkout.new(price_drop, over_60)
           @co.scan("001")
           @co.scan("002")
           @co.scan("001")

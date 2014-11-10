@@ -1,6 +1,11 @@
 require 'spec_helper'
 
 describe "Supermarket rule" do
+  subject(:instance) { Rule.new(:total) }
+
+  it { is_expected.to respond_to(:total) }
+  it { is_expected.to respond_to(:items) }
+
   describe "#initialize" do
     describe "when rule type is not given" do
       it "cannot create rule and raise error" do

@@ -1,8 +1,12 @@
 class Rule
+  KEYS = [:items, :total]
 
   def initialize(rule_type, cond = {})
     @rule_type = rule_type
     @cond = cond
+    KEYS.each do |key|
+      self.class.send(:define_method, key) { instance_variable_get("@#{key}") }
+    end
   end
 
   def eligible_for?(items_or_balance)
@@ -13,7 +17,7 @@ class Rule
       item = @cond[:item]
       items_or_balance[item][:qty] >= @cond[:qty]
     else
-      raise ArgumentError.new('Undefined rule type.') 
+      raise ArgumentError.new('Undefined rule type.')
     end
   end
 
@@ -29,7 +33,7 @@ class Rule
       item = @cond[:item]
       items_or_balance[item][:price] = @cond[:drop_to]
     else
-      raise ArgumentError.new('Undefined rule type.') 
+      raise ArgumentError.new('Undefined rule type.')
     end
   end
 

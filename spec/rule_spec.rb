@@ -6,6 +6,8 @@ describe "Supermarket rule" do
   it { is_expected.to respond_to(:total) }
   it { is_expected.to respond_to(:items) }
   it { is_expected.to respond_to(:balance) }
+  it { is_expected.to respond_to(:balance?) }
+  it { is_expected.to respond_to(:items?) }
 
   describe "rule for total" do
     let(:rate)        { 0.9 }
@@ -38,7 +40,7 @@ describe "Supermarket rule" do
   end
 
   describe "rule for items" do
-    let(:unit_price)  { 8.5}
+    let(:unit_price)  { -1.5 }
     let(:items)       { { "001" => 2 } }
     let(:items_rule)  { Rule.new(items:  items) { |cart| cart["001"] * unit_price } }
 

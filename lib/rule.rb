@@ -5,6 +5,7 @@ class Rule
     KEYS.each do |key|
       instance_variable_set("@#{key}", options[key]) if options[key]
       self.class.send(:define_method, key) { instance_variable_get("@#{key}") }
+      self.class.send(:define_method, "#{key}?".to_sym) { !self.public_send(key).nil? }
     end
     @calculator = block
   end
@@ -15,6 +16,6 @@ class Rule
   end
 
   def total(cart)
-    @calculator.call(cart)
+    match?(cart) ? @calculator.call(cart) : 0
   end
 end

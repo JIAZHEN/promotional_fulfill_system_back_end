@@ -1,47 +1,31 @@
 require 'bigdecimal'
-# This is the class to fulfil the back end of checkout system
+require 'cart'
+require 'forwardable'
 
 class Checkout
+  extend Forwardable
 
-  attr_reader   :items
+  attr_reader :cart
 
   def initialize(*rules)
-    @items = Hash.new
-    split_rules(rules)
-  end
-
-  def scan(item)
-    if @items[item]
-      @items[item][:qty] += 1
-    else
-      @items[item] = { qty: 1, price: items_price[item][:price] }
-    end
+    @cart = Cart.new
+    @rules = Array(rules)
   end
 
   def total
-    revenue = 0
-    @other_rules.each { |rule| rule.apply_to(@items) if rule.eligible_for?(@items) }
-    @items.values.each { |item_info| revenue += item_info[:price] * item_info[:qty] }
-    @total_rules.each { |rule| revenue = rule.apply_to(revenue.to_f) if rule.eligible_for?(revenue.to_f) } 
-    return round(revenue)
+    return @cart.balance if @rules.empty?
+    benefit = @rules.inject(0) { |sum, rule| rule.items? ? (sum + rule.total(@cart)) : sum  }
+    @cart.balance = @cart.balance + benefit if benefit
+    satisfied_rule = @rules.find { |rule| rule.balance? && rule.match?(@cart) }
+    round(satisfied_rule ? satisfied_rule.total(@cart) : @cart.balance)
   end
 
-  def items_price
-    { 
-      "001" => { price: 9.25,  name: "Lavender heart" },
-      "002" => { price: 45.00, name: "Personalised cufflinks" },
-      "003" => { price: 19.95, name: "Kids T-shirt" } 
-    }
-  end
+  def_delegator :@cart, :scan, :scan
 
   private
+
   def round(value, precision = 2)
     bd = BigDecimal(value.to_s)
     bd.round(precision, BigDecimal::ROUND_HALF_UP).to_f
-  end
-
-  def split_rules(rules)
-    @total_rules, @other_rules = Set.new, Set.new
-    rules.each { |rule| rule.is_for_total? ? (@total_rules << rule) : (@other_rules << rule) }
   end
 end

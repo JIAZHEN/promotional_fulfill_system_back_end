@@ -1,39 +1,21 @@
 class Rule
+  KEYS = [:items, :balance]
 
-  def initialize(rule_type, cond = {})
-    @rule_type = rule_type
-    @cond = cond
-  end
-
-  def eligible_for?(items_or_balance)
-    case @rule_type
-    when :total
-      items_or_balance.send(@cond[:comparison], @cond[:threshold])
-    when :price_drop
-      item = @cond[:item]
-      items_or_balance[item][:qty] >= @cond[:qty]
-    else
-      raise ArgumentError.new('Undefined rule type.') 
+  def initialize(options = {}, &block)
+    KEYS.each do |key|
+      instance_variable_set("@#{key}", options[key]) if options[key]
+      self.class.send(:define_method, key) { instance_variable_get("@#{key}") }
+      self.class.send(:define_method, "#{key}?".to_sym) { !self.public_send(key).nil? }
     end
+    @calculator = block
   end
 
-  def apply_to(items_or_balance)
-    case @rule_type
-    when :total
-      if @cond[:discount].include?('%')
-        items_or_balance * (1 - @cond[:discount].to_f / 100)
-      else
-        items_or_balance - @cond[:discount].to_f
-      end
-    when :price_drop
-      item = @cond[:item]
-      items_or_balance[item][:price] = @cond[:drop_to]
-    else
-      raise ArgumentError.new('Undefined rule type.') 
-    end
+  def match?(cart)
+    (items.nil? || items.all?{|item,qty| cart[item] >= qty}) &&
+    (balance.nil? || balance.all?{|sym, v| cart.balance.send(sym, v)})
   end
 
-  def is_for_total?
-    @rule_type == :total
+  def total(cart)
+    match?(cart) ? @calculator.call(cart) : 0
   end
 end
